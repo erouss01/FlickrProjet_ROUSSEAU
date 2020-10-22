@@ -10,30 +10,30 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class MainViewModel : ViewModel() {
-    val rep = Repository()
-    var i=0
-    val listep : MutableList<SearchResult> = mutableListOf<SearchResult>()
-    val l : List<Photo> =listep.get(0).photos.photo
-    val LPhoto = MutableLiveData<Photo>()
-    val call = object: Callback<SearchResult> {
+    var position = 0
+    val repository = Repository()
+    val mldPhoto = MutableLiveData<Photo>()
+
+    val callback = object:Callback<SearchResult>{
         override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-            print("erreur")
+            print("Erreur callback")
         }
 
         override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
-            var Sr = response.body()
-            if (Sr != null) {
-                listep.add(Sr)
-                LPhoto.value = l.get(i)
+            // val lPhoto = mlPhoto.get(0).photos?.photo
+            var reponse: SearchResult? = response.body()
+            if (response.isSuccessful) {
+                mldPhoto.value=  response.body()?.photos?.photo?.get(0)
             }
         }
     }
 
     init {
-        rep.getPhotos(call)
+        repository.getPhotos(callback)
     }
-    fun nextPhoto(){
-        i=i+1
-        LPhoto.value=l.get(i)
+
+    fun nextPhoto() {
+        position =+1
     }
+
 }
