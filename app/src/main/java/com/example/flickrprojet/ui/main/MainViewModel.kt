@@ -3,37 +3,51 @@ package com.example.flickrprojet.ui.main
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flickrprojet.model.Photo
+import com.example.flickrprojet.model.Photos
 import com.example.flickrprojet.model.SearchResult
 import com.example.flickrprojet.repository.Repository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class MainViewModel : ViewModel() {
-    var position = 0
-    val repository = Repository()
-    val mldPhoto = MutableLiveData<Photo>()
+    val rep:Repository= Repository()
+    var i=0
+    val LPhoto = MutableLiveData<Photo>()
+    val Lphotos=MutableLiveData<Photos>()
 
-    val callback = object:Callback<SearchResult>{
+    val call= object:Callback<SearchResult>{
         override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-            print("Erreur callback")
+            print("erreur")
         }
 
         override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
-            // val lPhoto = mlPhoto.get(0).photos?.photo
-            var reponse: SearchResult? = response.body()
-            if (response.isSuccessful) {
-                mldPhoto.value=  response.body()?.photos?.photo?.get(0)
+            var Sr=response.body()
+            if (Sr != null) {
+                Lphotos.value=Sr.photos
             }
+            if (Sr != null) {
+                LPhoto.value=Sr.photos.photo.get(0)
+            }
+
+
         }
+
     }
 
     init {
-        repository.getPhotos(callback)
-    }
+        rep.getPhotos(call)
 
-    fun nextPhoto() {
-        position =+1
+    }
+    fun nextPhoto(){
+        i=i+1
+        val f= Lphotos.value?.photo?.size
+        if(i== f!!){
+            i=0
+        }
+        LPhoto.value= Lphotos.value?.photo?.get(i)
+
     }
 
 }

@@ -8,7 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.flickrprojet.R
 import com.example.flickrprojet.model.Photo
@@ -22,32 +25,43 @@ class MainFragment : Fragment() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var imageview : ImageView
-    private lateinit var btn1 :Button
-    private lateinit var btn2 :Button
+    private lateinit var next :Button
+    private lateinit var allimages :Button
+    private lateinit var titre: TextView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        var view = inflater.inflate(R.layout.main_fragment, container, false)
-        imageview = view.findViewById(R.id.imageView)
-        btn1 = view.findViewById(R.id.button1)
-        btn2 = view.findViewById(R.id.button2)
-
-        /*btn1.setOnClickListener(View.OnClickListener {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
+        var view=inflater.inflate(R.layout.main_fragment, container, false)
+        next = view.findViewById<Button>(R.id.next)
+        titre = view.findViewById<TextView>(R.id.titre)
+        next.setOnClickListener(View.OnClickListener{
             viewModel.nextPhoto()
         })
-        btn2.setOnClickListener(View.OnClickListener {
-
-        })*/
+        allimages = view.findViewById<Button>(R.id.allImages)
+        imageview = view.findViewById<ImageView>(R.id.imageView)
+        allimages.setOnClickListener(View.OnClickListener {
+            Navigation.findNavController(allimages).navigate(R.id.action_mainFragment_to_listFragment);
+        })
         return view
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         //viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         viewModel = MainViewModel()
-        viewModel.mldPhoto.observe(requireActivity(), Observer<Photo> { photo: Photo ->
-            val url = "https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
-            getActivity()?.let { Glide.with(it).load(url).into(imageview) }
+        viewModel.LPhoto.observe(requireActivity(), Observer<Photo> { photo ->
+            val url ="https://farm" + photo.farm + ".staticflickr.com/" + photo.server + "/" + photo.id + "_" + photo.secret + ".jpg"
+            Glide.with(requireActivity()).load(url).into(imageview)
+            titre.text=photo.title
+            imageview.setOnClickListener(View.OnClickListener {
+               val action = MainFragmentDirections.actionMainFragmentToFullFragment(url)
+              findNavController().navigate(action)
+            })
+
+
         })
+
     }
 
 }
